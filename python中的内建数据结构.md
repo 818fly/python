@@ -182,6 +182,16 @@ zipped = zip(seq1,seq2)
 for i,(value1,value2) in enumerate(zipped):
     print(str(i)+"-----"+value1,value2)
 ```
+### reversed
+reversed函数将序列的元素倒序排列
+reversed(seq)
+seq -- 要转换的序列，可以是 tuple, string, list 或 range。
+## 字典
+dict(字典)可能是Python内建数据结构中最重要的。它更为常用的名字是哈希表或者是关联数组。字典是拥有灵活尺寸的键值对集合，其中键和值都是Python对象。
+用大括号{}是创建字典的一种方式，在字典中用逗号将键值对分隔:
+
+
+
 
 
 
