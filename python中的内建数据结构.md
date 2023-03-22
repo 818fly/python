@@ -55,9 +55,132 @@ a.count(1)
 ```python
 a_list = [1, 2, 3, 4]
 tup = ('foo')
-list函数在数据处理中常用于将迭代器或者生成器转化为列表:
+list函数在数据处理中常用于将**迭代器或者生成器**转化为列表:
 ```python
 gen = range(10)
 list(gen)
 ```
+## 列表的操作
+1. 使用append可以在列表的末尾增加元素
+2. 使用insert方法可以将元素插入列表的指定位置 a_list.insert(index, info)
+3. 使用pop将特定位置的元素移除并返回 ele = a_list.pop(2)
+4. 使用remove方法移除，该方法会定位第一个符合要求的值并移除它
+5. 使用关键字in可以检查一个值是否在列表中，not 关键字可以作用于in 的反义词
+注意：与字典、集合(后面会介绍)相比，检查列表中是否包含一个值是非常缓慢的。这是因为Python在列表中进行了线性逐个扫描，而在字典和集合中Python是同时检查所有元素的(基于哈希表)。
+## 连接和联合列表
+与元组相似，两个列表可以使用+号连接
+```python
+[4, None, 'foo'] + [7, 8, (2, 3)]
+# out [4, None, 'foo', 7, 8, (2, 3)]
+ ```
+如果你有一个已经定义的列表，你可以用extend方法向该列表添加多个元素: 
+```python
+x = [4, None, 'foo']
+x.extend([7, 8, (2, 3)])
+# out [4, None, 'foo', 7, 8, (2, 3)]
+ ```
+注意：使用extend将元素添加到已经存在的列表比通过+连接列表好，尤其是在你需要构建-一个大型列表时，因为在使用+号的时候会创建新的列表，并且还要复制新对象
+## 列表的排序
+### sort
+你可以调用列表的sort方法对列表进行内部排序(无须新建一个对象):
+```python
+a = [7, 2, 5, 1, 3]
+a.sort()
+a
+```
+sort有一些选项偶尔会派上用场。其中一项是传递一个二级排序key，用于生成排序值的函数。例如，我们可以通过字符串的长度进行排序:
+```python
+a = ['abc','asdcf','a']
+a.sort(key=len)
+a
+```
+### sorted
+sorted方法可以针对通用序列产生一个排序后的拷贝，产生的是拷贝，不会影响原来的值
+```python
+a = ['abc','asdcf','a']
+sorted(a)   # 这样回车会直接将结果进行返回，不需要写a，当你写a的时候还会显示a的原值
+```
+## 二分搜索和已排序列表的维护
+注意：二分搜索的前提是列表是已排序好的，所以需要保持列表保持有序，对未排序的列表使用bisect的函数虽然不会报错，但可能会导致不正确的结果
+内建的bisect模块实现了二分搜索：bisect. bisect会找到元素应当被插入的位置
+已排序列表的插值：isect.insort将元素插入到相应位置
+## 列表的切片
+可以对大部分序列类型选取其子集，它的基本形式是将start：stop传入到索引符号[]中
+```python
+seq = [7, 2, 3, 7, 5, 6, 0, 1]
+seq[2:5]
+# out [3, 7, 5]
+```
+可以选取一个切片，对这个切片进行赋值
+```python
+seq = [7, 2, 3, 7, 5, 6, 0, 1]
+seq[2:5] = [1, 1]
+```
+由于起始位置start的索引是包含的，而结束位置stop的索引并不包含，因此切片到的元素数量为stop-start。
+### 切片的序号
+start和stop是可以省略的，如果省略的话会默认传入序列的起始位置或结束位置
+```python
+seq = [7, 2, 3, 7, 5, 6, 0, 1]
+seq[1:]  # stop省略 表示直接取到尾
+seq[:3]  # start省略，表示直接从头开始
+seq[:]  # start和stop都省略，表示取整个列表
+```
+负数的start和stop可以从列表的**尾部**进行索引
+```python
+seq = [7, 2, 3, 7, 5, 6, 0, 1]
+seq[-6:-1]
+# out [3, 7, 5, 6, 0]
+```
+**步进值step**可以在第二个冒号后面使用，意思是每隔多少个数取一个值:
+```python
+seq = [7, 2, 3, 7, 5, 6, 0, 1]
+seq[::-1]  # 会直接将列表进行逆序排序
+seq[::2]   # 会对整个列表每隔2个取一个值
+```
+## 内建序列函数
+### enumerate
+我们经常需要在遍历一个序列的同时追踪当前元素的索引。返回(i ,value)元组序列，其中value是元素的值，i是元素的索引
+使用enumerate构造一个字典，将序列值映射到索引位置上。
+```python
+seq = [7, 2, 3, 7, 5, 6, 0, 1]
+a_map = {}
+for i, value in enumerate(seq):
+    a_map[i] = value
+a_map
+```
+### sorted 
+返回一个新的已排序的列表
+```python
+seq = [7, 2, 3, 7, 5, 6, 0, 1]
+sorted(seq)
+```
+### zip
+zip将列表、元组或其他序列的元素配对，新建一个元组构成的列表:
+```python
+seq1 = ['foo', 'bar', 'baz']
+seq2 = ['one', 'two', 'three']
+zipped = zip(seq1,seq2)
+list(zipped)
+# out [('foo', 'one'), ('bar', 'two'), ('baz', 'three')]
+```
+zip可以处理任意长度的序列，它生成列表长度由最短的序列决定:
+```python
+seq1 = ['foo', 'bar', 'baz']
+seq2 = ['one', 'two']
+zipped = zip(seq1,seq2)
+list(zipped)
+# out [('foo', 'one'), ('bar', 'two')]
+```
+zip的常用场景为同时遍历多个序列，有时候会和enumerate同时使用: 
+```python
+seq1 = ['foo', 'bar', 'baz']
+seq2 = ['one', 'two', 'three']
+zipped = zip(seq1,seq2)
+for i,(value1,value2) in enumerate(zipped):
+    print(str(i)+"-----"+value1,value2)
+```
+
+
+
+
 
