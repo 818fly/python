@@ -62,16 +62,78 @@ import re
 states = [' Alabama', 'Georgia!', 'Georgia', 'georgia', 'FlorIda', 'south carolina##',  'West virginia?' ]
 def remove_punctuation(value):
     return re.sub('[!#?]','',value )
-clean_ops = [str.strip, remove_punctuation, str.title ]
+clean_ops = [str.strip, remove_punctuation, str.title]  # 这里面写的是函数的方法，在这里不需要加上括号的，在遍历调用的时候要加上括号，str是python的标量类型，含有一个处理字符串的方法
 
 def clean_strings(strings, ops):
     result = []
     for value in strings:
         for function in ops:
-            value = function(value)
+            value = function(value)  # 遍历的时候加上括号，表示分别调用列表中的函数
         result.append(value)
     return result
 clean_strings(states, clean_ops)
 ```
 像这种更为函数化的模式可以使你在更高层次上方便地修改字符串变换方法。clean_strings函数现在也具有更强的复用性和通用性。
+## 匿名函数 lambda
+匿名函数使用lambda关键字定义，该关键字仅表达“我们声明一个匿名函数“的意思，匿名函数注重的不是方法名，函数名，而是方法中的参数和方法体，所以在匿名函数中只需要写这两方面东西即可
+```python
+equiv_anon = lambda x: x * 2
+equiv_anon(2)  # 调用lambda函数
+```
+匿名函数在数据分析中是非常方便的
+```python
+def apply_to_list(ints,f):
+    return [f(x) for x in ints]
+ints = [4, 0, 1, 5, 6]
+apply_to_list(ints, lambda x: x*2)  # 将lambda函数传递给f函数
+```
+你也可以写成`[x*2 for x in ints]`，但是在这里我们能够简单地将一个自定义操作符传递给apply_to_list函数。
+另一个例子，假设你想要根据字符串中不同字母的数量对一个字符串集合进行排序:
+```python
+listname = ['asd','aswa','a']
+listname.sort(key=lambda x: len(x), reverse= True)
+listname
+```
+## 生成器
+通过一致的方式遍历序列，例如**列表中的对象或者文件中的一行行内容**，这是Python的一个重要特性。这个特性是通过**迭代器协议**来实现的，迭代器协议是一种**令对象可遍历的通用方式**。例如，遍历一个字典，获得字典的键:
+```python
+some_dict = {'a':1, 'b':2, 'c':3}
+for key in some_dict:
+    print(key)
+```
+当你写下for key in some_dict的语句时，Python解释器会自动尝试根据some_dict生成一个迭代器:iter(some_dict)。迭代器就是一种用于在上下文中(比如for循环)向Python解释器生成对象的对象。大部分以列表或列表型对象为参数的方法都可以**接收任意的迭代器对象**。包括内建方法比如min. max和sum,以及类型构造函数比如list和tuple:list(iter(some_dict)) 就会得到`['a','b','c']`
+
+生成器是**构造新的可遍历对象的方式**。普通函数执行并一次返回单个结果，而生成器则返回一个多结果序列，在每一个元素产生之后暂停，直到下一个请求。
+### 创建生成器
+如需创建一个生成器，只需要在函数中将返回关键字return替换为yield关键字:
+```python
+def squares(n):
+    for i in range(1,n):
+        yield i**2
+```
+当你实际调用生成器时，代码并不会立即执行:例如调用这个生成器 squares(10)  会输出：<generator object squares at 0x000001EA84082E40>
+直到你请求生成器里面的元素时，它才会执行上面定义的函数:
+```python
+gen = squares(10)
+for i in gen:
+    print(i)
+```
+## 生成器表达式
+用生成器表达式来创建生成器是更加简单的方式。生成器表达式与列表、字典、集合的推导式很类似，创建一个生成器表达式，只需将列表推导式的中括号替换为小括号即可:
+```python
+gen =(x**2 for x in range(100))
+gen
+# out <generator object <genexpr> at 0x000001EA840BF4A0>    表示一个生成器产生了
+```
+
+
+
+
+
+
+
+
+
+
+
 
