@@ -189,10 +189,151 @@ seq -- 要转换的序列，可以是 tuple, string, list 或 range。
 ## 字典
 dict(字典)可能是Python内建数据结构中最重要的。它更为常用的名字是哈希表或者是关联数组。字典是拥有灵活尺寸的键值对集合，其中键和值都是Python对象。
 用大括号{}是创建字典的一种方式，在字典中用逗号将键值对分隔:
-
-
-
-
+```python
+empty_dict = {}
+d1 = {'a': 'some value', 'b':[1, 2, 3, 4]}
+d1
+```
+访问、插入或设置字典中的元素，就像访问列表和元组中的元素一一样:
+```python
+d1 = {'a': 'some value', 'b':[1, 2, 3, 4]}
+d1['a']
+d1['c'] = 'insert value'
+d1['a'] = 'xiugai'
+d1
+```
+你可以用检查列表或元组中是否含有一个元素的相同语法来**检查字典是否含有一个键**:
+```python
+d1 = {'a': 'some value', 'b':[1, 2, 3, 4]}
+'a' in d1   # 返回True
+```
+你可以使用del关键字或pop方法删除值，pop方法会在删除的同时返回被删的值，并删除键:
+```python
+d1 = {'a': 'some value', 'b':[1, 2, 3, 4]}
+# del d1['a']  # 直接删除
+d1.pop('b')   # 删除并返回被删除的值
+```
+keys和vaules方法分别会为你提供字典的键、值**迭代器**
+你可以使用update方法将两个字典合并：
+```python
+d1 = {'a': 'some value', 'b':[1, 2, 3, 4]}
+d1.update({'a':'update'})
+d1
+```
+d1.update({'c': 12})   注意如果传给update的字典有与原字典相同的键，会将原字典的值进行覆盖
+### 从序列中生成字典
+通常情况下，你有两个序列，你想按照字典特性进行元素配对:
+起初你会这么写
+```python
+empty_dict = {}
+key_list = [1, 2]
+value_list = ['a', 'b']
+for key, value in zip(key_list,value_list):
+    empty_dict[key] = value
+empty_dict
+```
+再者，由于字典的本质是一个2-元组的集合。字典可以接受一个2元组的列表作为参数的：
+```python
+mapping = dict(zip(range(4),range(4)))  # 通过zip产生2元组列表
+mapping
+```
+### 字典默认值
+一个常见的场景是字典中的值集合通过设置，成为另一种集合，比如列表。字典的setdefault方法就是为了这个目的而产生的。
+传统做法
+```python
+words = ['apple', 'bat', 'bar', 'atom', 'book']
+by_letter = {}
+for word in words:
+    letter = word[0]
+    if letter not in by_letter:
+        by_letter[letter] = [word]   # 键是首字母，值是一个列表组成的词汇
+    else:
+        by_letter[letter].append(word) # 如果首字母存在，则利用by_letter[letter]拿到列表，在列表中追加值
+by_letter
+```
+优秀做法
+```python
+words = ['apple', 'bat', 'bar', 'atom', 'book']
+by_letter = {}
+for word in words:
+    letter = word[0]
+    by_letter.setdefault(letter,[]).append(word)
+by_letter
+```
+说明：关于setdefault函数参数，第一个为key，第二个为默认值
+### 有效的字典键类型
+尽管字典的值可以是python的任意对象，但键必须是不可变对象，比如标量类型（整数、字符串、浮点数）或元组（且元组内的元素也是不可变对象）。通过判断一个对象是否可hash化，可以判断这个对象是否可以作为字典的键
+```python
+hash('a')  # 会返回hash值
+hash([a])  #可变对象，会报错
+```
+## 集合
+集合与数学中的集合概念是一样的，含有元素不能重复、无序的特性。**你可以认为集合也像字典，但是它只有键没有值**。集合含有两种创建方式，set函数和{}的方式：
+```python
+set([1,2,1,2])
+# 或
+{1，2，1，2}
+# out {1,2}
+```
+集合支持数学上的集合操作，例如联合、交集、差集、对称差集。
+```python
+t | s          # t 和 s的并集  
+t |= s         # 将t的内容设置为 t和 s的并集 
+t & s          # t 和 s的交集 
+t &= s         #将t的内容设置为t和 s的交集 
+t – s          # 求差集（项在t中，但不在s中）
+t -= s         #同理
+t ^ s          # 对称差集（项在t或s中，但不会同时出现在二者中）
+t ^= s         #同理
+```
+基本操作
+```python
+t.add(x)              # 将元素x加入集合a
+t.pop()               # 移除任意元素，如果集合是空则抛出keyError
+t.remove(x)           # 从集合中移除某个元素
+len(s)                # set 的长度 
+set1 = set([1,2,1,2,3])
+set2 = set([1,2])
+set1.issubset(set2)  #是否包含于的关系 False
+set1.issuperset(set2)  #是否包含的关系  True   包含比包含于大
+a.isdisjoint(b)      # a、b没有交集返回True
+```
+## 列表集合字典推导式
+它允许你**过滤**一个容器的元素，用一种简明的表达式转换传递给过滤器的元素，从而生成一个新的列表。
+表达式为:
+```python
+# [expr for val in collection if condition ]
+strings = ['a', 'as', 'bat', 'car', 'dove', 'python']
+list1 = [i.upper() for i in strings]
+list1
+```
+集合与字典的推导式是列表推导式的自然拓展，用相似的方式生成集合与字典。字典推导式如下所示:
+```python
+# 表达式：dict_ comp = {key-expr : value-expr for value in collection if condition}
+strings = ['a', 'as', 'bat', 'car', 'dove', 'python']
+dict_comp = {key: value for key, value in enumerate(strings)}
+dict_comp
+```
+集合推导式看起来很像列表推导式，只是中括号变成了大括号:
+```python
+set_ comp = {expr for value in collection if condition}
+```
+### 嵌套列表推导式
+假如我们有一个包含列表的列表，你需要把包含两个a字母的单词打印出来
+传统做法
+```python
+strings = [['aa', 'as', 'bat'], ['caar', 'dove', 'python']]
+for i in strings:
+    for j in i:
+        if j.count('a') == 2:
+            print(j)
+```
+使用嵌套列表推导式
+```python
+strings = [['aa', 'as', 'bat'], ['caar', 'dove', 'python']]
+words_list = [word for i in strings for word in i if word.count('a')==2]
+words_list
+```
 
 
 
