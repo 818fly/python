@@ -1,0 +1,38 @@
+## python创建文件对象方式
+打开文件进行读取或写入，需要使用内建函数open和绝对、相对路径:
+```python
+filename = 'Desktop/jupyter快捷键.txt'
+f = open(filename,encoding='utf-8')
+lines = [line for line in f]
+lines   # 将读取到的内容放到列表中   
+```
+默认open出来的文件打开方式是只读的模式，当你使用open来创建文件对象时，在结束操作显示地关闭文件非常重要f.close()，另一种更简单的关闭文件的方式就是使用with语句:
+with open(path) as f:
+使用with语句，文件会在with代码块结束后自动关闭。
+## python文件模式
+r  只读模式
+w  只写模式，创建新文件（清楚同路径下的同名文件中的数据）
+x  只写模式，创建新文件，但存在同名路径时会创建失败
+a 添加已存在的文件（如果不存在就创建）
+r+ 读写模式
+b 二进制文件模式，添加到别的模式中（比如'rb'）
+## read操作
+对于可读文件，最常用的方法是read、seek和tell。read返回文件中一定量的字符，构成字符的内容是由文件的编码决定的(例如UTF-8)，或者在二进制模式下打开文件读取简单的原生字节:
+f.read(2)  这样就会读取到两个字符出来
+tell方法可以给出句柄当前的位置：
+f.tell()  即read读取会移动句柄，tell就是获取读取到哪里了
+seek方法可以将句柄位置改变到文件中特定的字节:
+```python
+filename = 'Desktop/jupyter快捷键.txt'
+f = open(filename,encoding='utf-8')
+print(f.read(5)) # 将句柄移动到5的位置
+f.seek(1)        # 改变句柄的位置，从5到1
+f.read(1)        # 读取目前句柄中的位置 
+```
+## 重要的文件操作方法
+read([size])  将文件数据作为字符串返回，可选参数size是控制读取的字节数
+readlines([size]) 将文件中每一行作为一个元素放在列表中,可选参数size是控制读取的字节数，如果size大小小于一行的字节数，则还会返回这一行的数据，如果大于一行小于两行的字节，会返回两行的数据
+write(str)  将字符串写入文件
+writerlines(strings)将字符串序列写入文件
+flush() 将内部IO缓冲器的内容刷新到硬盘
+close() 关闭文件
