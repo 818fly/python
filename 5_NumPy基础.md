@@ -150,6 +150,41 @@ print(arr2d[0:2,2])
 ```
 当然你对切片表达式进行赋值时，整个切片都会重新赋值
 ## 布尔索引
+### 一维数组的索引
+
+布尔数组中，下标为0,3,4的位置是True，因此将会取出目标数组中对应位置的元素。
+```python
+    In [24]: arr = np.arange(7)
+    
+    In [25]: booling1 = np.array([True,False,False,True,True,False,False])
+    
+    In [26]: arr[booling1]
+    Out[26]: array([0, 3, 4])
+ ```
+
+### 二维数组的索引
+布尔数组中，下标为0,3,4的位置是True，因此将会取出目标数组中第0,3,4行。
+```python
+ In [27]: arr = np.arange(28).reshape((7,4))
+    
+    In [28]: arr
+    Out[28]: 
+    array([[ 0,  1,  2,  3],
+           [ 4,  5,  6,  7],
+           [ 8,  9, 10, 11],
+           [12, 13, 14, 15],
+           [16, 17, 18, 19],
+           [20, 21, 22, 23],
+           [24, 25, 26, 27]])
+    
+    In [29]: booling1 = np.array([True,False,False,True,True,False,False])
+    
+    In [30]: arr[booling1]
+    Out[30]: 
+    array([[ 0,  1,  2,  3],
+           [12, 13, 14, 15],
+           [16, 17, 18, 19]])
+``` 
 假设我们的数据都在数组中，并且数组中的数据是一些存在重复的人名。我会使用numpy.random中的randn函数来生成一些随机正态分布的数据:
 ```python
 import numpy as np
