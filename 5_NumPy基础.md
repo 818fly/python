@@ -187,8 +187,52 @@ data[mask]
 ```
 **使用布尔值索引选择数据时，总是生成数据的拷贝，即使返回的数组并没有任何变化。**
 注意：Python的关键字and和or对布尔值数组并没有用，请使用& (and) 和|(or)来代替。
-
-
-
+### 基于常识来设置布尔值数组的值
+将data中所有的负值设置为0,我们需要做:
+```python
+import numpy as np
+data = np.random.randn(2,3)
+print(data <0)
+data[data < 0 ] = 0
+data
+```
+是什么意思呢？应该就是数组中的每一个值形成布尔，然后也会将满足这个布尔值的赋值相应的元素
+说明：这里的print(data)的数据是：
+`[[False  True False]
+ [False  True False]]`
+## 数组转置与换轴
+转置：用数组transpose方法，或者特殊的T属性:
+```python
+arr= np. arange(15) .reshape((3, 5))
+arr.T
+```
+矩阵的内积：
+两个向量对应分量乘积之和。np.dot(A,B)
+```python
+arr= np. arange(15) .reshape((3, 5))
+A = arr.transpose()
+np.dot(arr,A)
+```
+结果：`array([[ 30,  80, 130],
+       [ 80, 255, 430],
+       [130, 430, 730]])`
+## 通用函数:快速的逐元素数组函数
+通用函数是ndarray数组进行逐元素操作的函数
+比如一元通用函数：sqrt或exp函数:
+```python
+arr = np.arange(10)
+np.sqrt(arr)
+np.exp(arr)
+```
+比如add或maximum则会接收两个数组并返回一个数组作为结果的二元通用函数
+```python
+x = np.random.randn(8)
+y = np.random.randn(8)
+print(x)
+print(y)
+np.maximum(x,y)
+```
+这里，numpy.maximum逐个元素地将x和y中元素的最大值计算出来。
+当然还有很多的通用函数，具体见《利用python进行数据分析》108页
 
 
