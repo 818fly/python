@@ -260,4 +260,129 @@ np.maximum(x,y)
 - maximum，fmax 逐个元素计算最大值，fmax忽略NaN
 - minimun，fmin 逐个元素计算最小值，fmin忽略NaN
 - mod 按元素的求模计算（即求除法的余数）  
+## 将条件逻辑作为数组操作
+假设我们有一个布尔数组和两个值数组：
+```python
+In [165]: xarr = np.array([1.1, 1.2, 1.3, 1.4, 1.5])
+
+In [166]: yarr = np.array([2.1, 2.2, 2.3, 2.4, 2.5])
+
+In [167]: cond = np.array([True, False, True, True, False])
+```
+假设我们想当cond中的值为True时，选取xarr的值，否则从yarr中选取
+```python
+In [170]: result = np.where(cond, xarr, yarr)
+
+In [171]: result
+Out[171]: array([ 1.1,  2.2,  1.3,  1.4,  2.5])
+```
+> where函数的典型用法就是根据一个数组来生成一个新数组
+假如你有一个随机生成的数组，你想将大于0的数，改为2，将小于0的数改为1
+```python
+arr = np.random.randn(2,3)
+np.where(arr>0,2,1)
+```
+## numpy中的数学与统计方法
+- sum 沿着轴向计算所有元素的累和，0长度的数组，累和为0
+- mean 数据平均，0长度的数组平均值为NaN
+- std、var 标准差和方差，可以选择自由度调整
+- min，max 最小值与最大值
+- argmin，argmax 最小值和最大值的位置
+- cumsum  所有元素累和
+- cumprod 所有元素累积
+
+mean和sum这类的函数可以接受一个axis选项参数，用于计算该轴向上的统计值，最终结果是一个少一维的数组：
+```python
+arr = np.random.randn(5, 4)
+np.mean(arr, axis=0)
+
+[[ 0.33379297 -1.20234126  0.92199071  1.2139666 ]
+ [ 0.29498613 -0.32915131  0.49206796  2.99880893]
+ [ 0.9085492   0.69002296 -1.40754324  1.3563622 ]
+ [-0.16883191  0.49922795 -0.35523631  1.39041476]
+ [ 1.33967881 -1.88807552  0.08659239 -1.25322137]]
+ 
+array([-0.3752747 ,  0.00285498,  0.36041613, -0.21401022])  # 以竖轴方向上做的平均值
+
+```
+## 布尔数组中的方法
+如果我们想统计出布尔数组中True的个数，那么可以这样做：
+```python
+arr = np.array([True,False,True])
+np.sum(arr)
+```
+any用于测试布尔数组中是否存在一个或多个True，而all则检查布尔数组中所有值是否都是True：
+```python
+bools = np.array([False, False, True, False])
+bools.any()  #  是否存在True
+bools.all()  #  是否都是True
+```
+这两个方法也能用于非布尔型数组，所有非0元素将会被当做True。
+## numpy排序
+numpy数组方法直接有一个排序的方法，当然了numpy命名空间中也有一个排序方法
+```python
+xarr = np.array([4, 1.2, 1.3, 1.4, 1.5])
+xarr.sort()   # 这个排序后不能给它赋值
+xarr
+```
+对于多维数组可以指定在一个轴上排序，只需将轴编号传给sort
+```python
+arr = np.random.randn(5, 3)
+arr.sort(1)
+arr
+```
+## 数组的集合操作
+- unique(x)   计算x的唯一值，并排序
+- intersect1d(x,y)  计算x和y的交集，并排序
+- union1d(x,y)     计算x和y的并集，并排序
+- in1d(x,y)        计算x中的元素是否包含在y中，返回一个布尔值数组
+- setdiff1d(x,y)   差集，在x中但不在y中的元素
+- setxor1d(x,y)    异或集，在x或y中，但不属于x，y交集的元素
+## numpy中的线性代数操作
+- diag 将一个方阵的对角（或非对角）元素作为一维数组返回，或者将一维数组转换成一个方阵，并且在非对角线上补0
+- dot  矩阵的点乘
+- trace 计算矩阵的迹
+- det 计算矩阵的行列式
+- eig 计算方阵的特征值和特征向量
+- inv 计算方阵的逆矩阵
+- pinv 计算矩阵的Moore-Penrose伪逆【广义逆】
+- qr 计算QR分解
+- svd 计算奇异值分解（SVD）
+- solve  求解x的线性系统Ax=b，其中A是方阵
+- lstsq  计算 Ax=b 的最小二乘解
+
+## 伪随机数
+numpy.random模块是对Python内置的random进行了补充，内置的random模块则只能一次生成一个样本值，而使用numpy中的random模块可以一次性生成指定数组样式的随机数。我们说这些都是伪随机数，因为它们都是通过算法基于随机数生成器种子，在确定性的条件下生成的。每一次运行随机数的种子都不一样，是的产生的结果也就不一样，如果想将得到的伪随机数都是一样的，则需要指定随机数种子`np.random.seed(0)`
+
+**根据给定的序列产生该序列的随机生成序列**
+- np.random.shuffle(arr) 对一个序列就地随机排列
+- np.random.permutation(arr)  返回一个序列的随机排序值  
+
+- np.random.beta() 产生Beta分布的样本值
+
+
+- np.random.randint(low = 1, high=10, size=(3,3), dtype=int)   从给定的上下限里生成随机整数组成的数组，例如这里`[1,10)`，size指定生成的数组尺寸
+- np.random.random(size=(2,2)) 生成`[0., 1.)`之间均匀分布的随机数组，size为生成的尺寸
+- numpy.random.rand(d0,d1,…,dn)   `生成[0,1)之间的数据`  dn表格每个维度，例如rand(4,3,2) # shape: 4*3*2
+- numpy.random.randn(d0,d1,…,dn)   randn函数返回一个或一组样本，具有标准正态分布。【标准正态分布又称为u分布，是以0为均值、以1为标准差的正态分布，记为N（0，1）】
+
+**产生正态分布的样本值**
+- numpy.random.normal(loc=0,scale=1e-2,size=shape) 
+参数loc(float)：正态分布的均值，对应着这个分布的中心。loc=0说明这一个以Y轴为对称轴的正态分布，
+参数scale(float)：正态分布的标准差，对应分布的宽度，scale越大，正态分布的曲线越矮胖，scale越小，曲线越高瘦。
+参数size(int 或者整数元组)：输出的值赋在shape里，默认为None。
+
+**产生二项分布的样本值**
+二项分布是由伯努利提出的概念，指的是重复n次（注意：这里的n和binomial()函数参数n不是一个意思）独立的伯努利试验，如果事件X服从二项式分布，则可以表示为X~B(n,p)，则期望E(X)=np，方差D(X)=np(1-p)。简单来讲就是在每次试验中只有两种可能的结果（例如：抛一枚硬币，不是正面就是反面，而掷六面体色子就不是二项式分布），而且两种结果发生与否互相对立，并且相互独立，与其它各次试验结果无关，事件发生与否的概率在每一次独立试验中都保持不变。
+- numpy.random.binomial(n,p,size=None)
+参数n：一次试验的样本数n
+参数p：事件发生的概率p，`范围[0,1]`
+size是一个整数N时，返回一个长度为N的一维数组；size是（X，Y）类型元组时，返回一个X行Y列二维数组；size是（X，Y，Z）类型元组时，返回一个三维数组
+
+
+
+
+
+
+
 
