@@ -74,6 +74,7 @@ dt.time()
 dt.strftime('%m/%d/%Y %H:%M')
 ```
 还有一种，可以将字符串类型的时间转了datetime对象
+
 **2. str——>datetime**
 ```python
 datetime.strptime('2009-10-31'，'%Y-%m-%d')
