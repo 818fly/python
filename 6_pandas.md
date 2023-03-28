@@ -320,7 +320,7 @@ New York        12	 13	  14
 '''
 ```
 ## 算术运算和数据对齐
-1、对于Series相加的话，会将两者的索引取并集，总共有这么多的索引，而值就是对应的算术运算了
+1、对于Series相加的话，会将两者的索引取并集，值就是对应的算术运算了
 ```python
 s1 = pd.Series([7.3, -2.5, 3.4, 1.5], index=['a', 'c', 'd', 'e'])
 s2 = pd.Series([-2.1, 3.6, -1.5, 4, 3.1],index=['a', 'c', 'e', 'f', 'g'])
@@ -336,26 +336,10 @@ g    NaN
 ```
 对于DataFrame，对齐操作会同时发生在行和列上：
 ```python
-df1 = pd.DataFrame(np.arange(9.).reshape((3, 3)), columns=list('bcd'),
-                index=['Ohio', 'Texas', 'Colorado'])
-'''
-df1的输出值
-            b    c    d
-Ohio      0.0  1.0  2.0
-Texas     3.0  4.0  5.0
-Colorado  6.0  7.0  8.0
-'''
-df2 = pd.DataFrame(np.arange(12.).reshape((4, 3)), columns=list('bde'),
-                 index=['Utah', 'Ohio', 'Texas', 'Oregon'])
-'''
-df2的输出值
-         b     d     e
-Utah    0.0   1.0   2.0
-Ohio    3.0   4.0   5.0
-Texas   6.0   7.0   8.0
-Oregon  9.0  10.0  11.0
-'''
-df1 + df2   # 将它们相加时，没有重叠的位置就会产生NaN值
+df1 = pd.DataFrame(np.arange(9.).reshape((3, 3)), columns=list('bcd'), index=['Ohio', 'Texas', 'Colorado'])
+
+df2 = pd.DataFrame(np.arange(12.).reshape((4, 3)), columns=list('bde'), index=['Utah', 'Ohio', 'Texas', 'Oregon'])
+df1 + df2   # 将它们相加时，index与columns会相互对应起来进行算术运算，没有重叠的位置就会产生NaN值
 '''
             b   c     d   e
 Colorado  NaN NaN   NaN NaN
@@ -365,10 +349,10 @@ Texas     9.0 NaN  12.0 NaN
 Utah      NaN NaN   NaN NaN
 '''
 ```
-> 相加产生新的二维表的顺序列和行标题是按照排序规则展示的
+> 相加产生新的二维表的index与columns会排好序进行展示
 ## 在算术方法中填充值
 使用df1的add方法，传入df2以及一个fill_value参数：
-fill_value参数会将df中的值为NaN的时候，设置为这个填充的值，然后进行算术操作
+fill_value参数会将df3中的值为NaN的时候，设置为这个填充的值，然后进行算术操作
 ```python
 df1 = pd.DataFrame(np.arange(12.).reshape((3, 4)),
                  columns=list('abcd'))
@@ -384,7 +368,7 @@ df2.add(df3,fill_value = 0)
 - mul 用于乘法
 - pow 用于指数
 ## DataFrame和Series之间的运算
-计算一个二维数组与其某行之间的差：
+计算二维数组与它的某行之间的差：
 ```python
 arr = np.arange(12.).reshape((3, 4))
 '''
@@ -405,26 +389,12 @@ array([[ 0.,  0.,  0.,  0.],
 ```
 > 当我们从arr减去`arr[0]`，每一行都会执行这个操作。这就叫做广播
 
-默认情况下，DataFrame和Series之间的算术运算会将Series的索引匹配DataFrame的列，然后**沿着行一直向下广播**:【默认沿着行广播】
+DataFrame和Series之间的算术运算会**沿着行一直向下广播**:
 ```python
 frame = pd.DataFrame(np.arange(12.).reshape((4, 3)),
                     columns=list('bde'),
                     index=['Utah', 'Ohio', 'Texas', 'Oregon'])
 series = frame.iloc[0]
-print(frame)
-'''
-          b     d     e
-Utah    0.0   1.0   2.0
-Ohio    3.0   4.0   5.0
-Texas   6.0   7.0   8.0
-Oregon  9.0  10.0  11.0
-'''
-print(series)
-'''
-b    0.0
-d    1.0
-e    2.0
-'''
 frame - series 
 '''
 	b	d	e
@@ -434,7 +404,7 @@ Texas	6.0	6.0	6.0
 Oregon	9.0	9.0	9.0
 '''
 ```
-如果某个索引值在DataFrame的列或Series的索引中找不到，则参与运算的两个对象就会被重新索引以形成并集：
+算术操作会列举出所有的索引值： 当有一个表中没有这个索引的时候显示NaN
 ```python
 series2 = pd.Series(range(3), index=['b', 'e', 'f'])
 frame + series2
@@ -446,7 +416,7 @@ Texas   6.0 NaN   9.0 NaN
 Oregon  9.0 NaN  12.0 NaN
 '''
 ```
-如果你希望匹配行且在**列上广播**，则必须使用算术运算方法。例如：
+对二维表在columns中进行算术运算，需要采用二维表中的算术方法进行操作。例如：让二维表减去某一列的值
 ```python
 series3 = frame['d']
 print(frame)
@@ -467,24 +437,24 @@ Oregon    10.0
 frame.sub(series3, axis=0)  # 指明在列上进行广播
 ```
 ## 函数应用和映射
-NumPy的ufuncs（元素级数组方法）也可用于操作pandas对象：
+numpy中的函数操作pandas对象：
 ```python
 frame = pd.DataFrame(np.random.randn(4, 3), columns=list('bde'),index=['Utah', 'Ohio', 'Texas', 'Oregon'])
 np.abs(frame)
 ```
-另一个常见的操作是，将函数应用到由各列所形成的一维数组上。DataFrame的apply方法即可实现此功能：
+计算每一列中的最大值与最小值的差：
 ```python
 f = lambda x: x.max() - x.min()
-frame.apply(f)
+frame.apply(f,axis= 0)
 '''
 b    1.802165
 d    1.684034
 e    2.689627
 '''
 ```
-如果传递axis='columns'到apply，这个函数会在每行执行：
+计算每一行中的最大值与最小值的差：
 ```python
-frame.apply(f, axis='columns')
+frame.apply(f, axis=1)
 '''
 Utah      0.998382
 Ohio      2.521511
@@ -492,9 +462,10 @@ Texas     0.676115
 Oregon    2.542656
 '''
 ```
-许多最为常见的数组统计功能都被实现成DataFrame的方法（如sum和mean），因此无需使用apply方法。
+注意：常见的数组统计功能都被实现成DataFrame实现了，直接调用这个对象的方法即可
 ## 排序和排名
-要对行或列索引进行排序（按字典顺序），可使用sort_index方法，它将返回一个已排序的新对象：
+### 按照索引排序
+对一维的Series利用索引进行排序：
 ```python
 obj = pd.Series(range(4), index=['d', 'a', 'b', 'c'])
 obj.sort_index()
@@ -505,17 +476,20 @@ c    3
 d    0
 '''
 ```
-对于DataFrame，则可以根据任意一个轴上的索引进行排序：
+对二维表的数据对列的方向进行排序：
 ```python
 frame = pd.DataFrame(np.arange(8).reshape((2, 4)),
                  index=['three', 'one'],
                  columns=['d', 'a', 'b', 'c'])
-frame.sort_index()
+frame.sort_index(axis=0)
 '''
        d  a  b  c
 one    4  5  6  7
 three  0  1  2  3
 '''
+```
+对二维表的数据对行的方向进行排序：
+```python
 frame.sort_index(axis=1)
 '''
        a  b  c  d
@@ -523,8 +497,9 @@ three  1  2  3  0
 one    5  6  7  4
 '''
 ```
-数据默认是按升序排序的，但也可以降序排序:frame.sort_index(axis=1, ascending=False)
-若要按值对Series进行排序，可使用其sort_values方法：
+数据默认是按升序排序的，如果进行降序排序，则:frame.sort_index(axis=1, ascending=False)
+### 按值排序
+对于一维的Series列表：
 ```python
 obj = pd.Series([4, 7, -3, 2])
 obj.sort_values()
@@ -535,23 +510,10 @@ obj.sort_values()
 1    7
 '''
 ```
-在排序时，任何缺失值默认都会被放到Series的末尾：
+对于二维表的数据，你需要指定对一列或者多列的值进行排序：
 ```python
-obj = pd.Series([4, np.nan, 7, np.nan, -3, 2])
-obj.sort_values()
-'''
-4   -3.0
-5    2.0
-0    4.0
-2    7.0
-1    NaN
-3    NaN
-'''
-```
-当排序一个DataFrame时，你可能希望根据一个或多个列中的值进行排序:
-```python
-frame = pd.DataFrame({'b': [4, 7, -3, 2], 'a': [0, 1, 0, 1]})
-frame.sort_values(by='b')
+frame = pd.DataFrame(np.arange(8).reshape((2, 4)),index=['three', 'one'],columns=['d', 'a', 'b', 'c'])
+frame.sort_values(by='a')
 ```
 ## 带有重复标签的轴索引
 虽然许多pandas函数（如reindex）都要求标签唯一，但这并不是强制性的。我们来看看下面这个简单的带有重复索引值的Series：
