@@ -510,51 +510,24 @@ obj.sort_values()
 1    7
 '''
 ```
-对于二维表的数据，你需要指定对一列或者多列的值进行排序：
+对于二维表的数据，你需要指定对一列或者多列的值进行排序：例如这里指定了a和b列进行排序
 ```python
-frame = pd.DataFrame(np.arange(8).reshape((2, 4)),index=['three', 'one'],columns=['d', 'a', 'b', 'c'])
-frame.sort_values(by='a')
+frame = pd.DataFrame(np.arange(8).reshape((2, 4)), index=['three', 'one'], columns=['d', 'a', 'b', 'c'])
+frame.sort_values(by=['a','b'])
 ```
 ## 带有重复标签的轴索引
-虽然许多pandas函数（如reindex）都要求标签唯一，但这并不是强制性的。我们来看看下面这个简单的带有重复索引值的Series：
+带有重复索引值的Series：会将重复的索引值都显示出来
 ```python
 obj = pd.Series(range(5), index=['a', 'a', 'b', 'b', 'c'])
 ```
-索引的is_unique属性可以告诉你它的值是否是唯一的：obj.index.is_unique  False
-如果某个索引对应多个值，则返回一个Series；而对应单个值的，则返回一个标量值：
-```python
-obj['a']
-'''
-a    0
-a    1
-'''
-obj['c']
-'''
-4
-'''
-```
+在index索引中有一个is_unique属性，可以告诉该列表的索引值是否唯一：obj.index.is_unique  
 ## 汇总和计算描述统计
-pandas对象拥有一组常用的数学和统计方法。它们大部分都属于约简和汇总统计，用于从Series中提取单个值（如sum或mean）或从DataFrame的行或列中提取一个Series。跟对应的NumPy数组方法相比，它们都是基于没有缺失数据的假设而构建的。看一个简单的DataFrame：
-调用DataFrame的sum方法将会返回一个含有列的和的Series：
+统计二维表中列的和：
 ```python
-df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5],
-                [np.nan, np.nan], [0.75, -1.3]],
-                index=['a', 'b', 'c', 'd'],
-                 columns=['one', 'two'])
-'''
-    one  two
-a  1.40  NaN
-b  7.10 -4.5
-c   NaN  NaN
-d  0.75 -1.3
-'''
-df.sum()
-'''
-one    9.25
-two   -5.80
-'''
+df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5],[np.nan, np.nan], [0.75, -1.3]],index=['a', 'b', 'c', 'd'],columns=['one', 'two'])
+df.sum(axis=0)
 ```
-传入axis=1将会按行进行求和运算：
+axis=1将对行进行计算：
 ```python
 df.sum(axis=1)
 '''
@@ -564,9 +537,9 @@ c     NaN
 d   -0.55
 '''
 ```
-NA值会自动被排除，除非整个行或列都是NA。通过skipna选项可以排除这种机制：即只要是NaN相加就会直接是NaN
+计算列的平均值：通过skipna参数设置，设置它之后，只要有一个数据是NaN，相加后就会直接是NaN，默认值是True表示跳过
 ```python
-df.mean(axis='columns', skipna=False)
+df.mean(axis=0, skipna=False)
 '''
 a      NaN
 b    1.300
@@ -574,18 +547,11 @@ c      NaN
 d   -0.275
 '''
 ```
-**约简方法的常用选项**
-- axis 约简的轴。DataFrame的行用的0，列用的1
-- skipna 排除缺失值，默认值为True
-- level 如果轴是层次化索引，则根据level分组约简
-有些方法（如idxmin和idxmax）返回的是间接统计（比如达到最小值或最大值的索引）：
+得到二维表中最大值的索引：
 ```python
-df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5],
-                [np.nan, np.nan], [0.75, -1.3]],
-                index=['a', 'b', 'c', 'd'],
-                 columns=['one', 'two'])
+df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5], [np.nan, np.nan], [0.75, -1.3]], index=['a', 'b', 'c', 'd'], columns=['one', 'two'])
 print(df)
-df.idxmax()
+df.idxmax(axis=0)
 '''
     one  two
 a  1.40  NaN
@@ -597,20 +563,14 @@ two    d
 dtype: object
 '''
 ```
-另一些方法则是累计型的：
+在竖直方向进行累计：
 ```python
 df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5],
                 [np.nan, np.nan], [0.75, -1.3]],
                 index=['a', 'b', 'c', 'd'],
                  columns=['one', 'two'])
-print(df)
-df.cumsum()
+df.cumsum(axis=0)
 '''
-    one  two
-a  1.40  NaN
-b  7.10 -4.5
-c   NaN  NaN
-d  0.75 -1.3
 one	two
 a	1.40	NaN
 b	8.50	-4.5
@@ -618,7 +578,7 @@ c	NaN	NaN
 d	9.25	-5.8
 '''
 ```
-还有一种方法，它既不是约简型也不是累计型。describe就是一个例子，它用于一次性产生多个汇总统计：
+一次性产生多个汇总统计：count表示非NaN的数量
 ```python
 df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5],
                 [np.nan, np.nan], [0.75, -1.3]],
@@ -627,15 +587,10 @@ df = pd.DataFrame([[1.4, np.nan], [7.1, -4.5],
 print(df)
 df.describe()
 '''
-    one  two
-a  1.40  NaN
-b  7.10 -4.5
-c   NaN  NaN
-d  0.75 -1.3
 one	two
-count	3.000000	2.000000
+count	3.000000	 2.000000
 mean	3.083333	-2.900000
-std	3.493685	2.262742
+std	3.493685	 2.262742
 min	0.750000	-4.500000
 25%	1.075000	-3.700000
 50%	1.400000	-2.900000
@@ -650,15 +605,15 @@ max	7.100000	-1.300000
 ```python
 obj = pd.Series(['c', 'a', 'd', 'a', 'a', 'b', 'b', 'c', 'c'])
 ```
-第一个函数是unique，它可以得到Series中的唯一值数组：
+得到Series中的唯一值数组和每一个值出现的数量：
 ```python
+obj = pd.Series(['c', 'a', 'd', 'a', 'a', 'b', 'b', 'c', 'c'])
+obj.value_counts()    #   获取每一个值得数量
 uniques = obj.unique()
+uniques.sort()        #  如果需要对序列进行排序的话，使用这个方法
+uniques 
 ```
-返回的唯一值是未排序的，如果需要的话，可以对结果再次进行排序（uniques.sort()）。相似的，value_counts用于计算一个Series中各值出现的频率：
-```python
-obj.value_counts()
-```
-isin用于判断矢量化集合的成员资格，可用于过滤Series中或DataFrame列中数据的子集：
+isin用于判断给定的值是否在序列中，可用于过滤Series中或DataFrame列中数据的子集：
 ```python
 mask = obj.isin(['b', 'c'])
 '''
@@ -672,7 +627,7 @@ mask = obj.isin(['b', 'c'])
 7     True
 8     True
 '''
-obj[mask]
+obj[mask]    #  通过bool数组进行排除提取为True的数据
 '''
 0    c
 5    b
